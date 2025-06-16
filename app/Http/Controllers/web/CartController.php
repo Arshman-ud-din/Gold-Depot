@@ -14,6 +14,7 @@ class CartController extends Controller
     {
 
         $cart = session('cart');
+        $item = [];
         // $variants = Variant::all();
         // dd($cart);
         if (isset($cart['items'])) {
@@ -29,6 +30,17 @@ class CartController extends Controller
                 $variant = $product['variant'];
                 // dd($variant);
 
+                $productattr = Product::with(['variants.attribute'])->find($product['item']->id);
+
+                // dd($productattr);
+
+                $groupVariants = [];
+                foreach ($productattr->variants as $variant) {
+                    $groupVariants[$variant->attribute->name][] = [
+                        'id' => $variant->id,
+                        'name' => $variant->name,
+                    ];
+                }
                 $items[] = [
                     'id' => $product['item']->id,
                     'title' => $product['item']->title,
@@ -39,13 +51,14 @@ class CartController extends Controller
                     'item_total' => $item_total,
                     'productcount' => $productcount,
                     'variant' => $variant,
+                    'group_variants' => $groupVariants,
                 ];
 
             }
 
         }
 
-        dd($items);
+        // dd($items);
         return view('screens.web.cart.index', get_defined_vars());
     }
 
@@ -110,6 +123,8 @@ class CartController extends Controller
 
     public function delete(Request $request)
     {
+
+        dd($request->all());
         try {
             if ($request->productId) {
                 $cart = session()->get('cart');

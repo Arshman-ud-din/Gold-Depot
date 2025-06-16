@@ -67,20 +67,20 @@
                                             <button class="count-btn increment cart-update-button">+</button>
                                         </td>
                                         <td class="item-total">
-                                            @if (is_array($item['variant']))
-                                                <select class="form-control" name="option">
-                                                    <option disabled selected> select any option </option>
-                                                    @foreach ($item['variant'] as $productvariants)
-                                                        <option selected disabled>
-                                                            {{ $productvariants['variantName'] }}</option>
-                                                    @endforeach
-                                                    {{-- @foreach ($variants as $variant)
-                                                        <option>
-                                                            {{ $variant->name }}</option>
-                                                    @endforeach --}}
-                                                </select>
+                                            @if (isset($item['group_variants']) && is_array($item['group_variants']))
+                                                @foreach ($item['group_variants'] as $attrName => $variants)
+                                                    <select class="form-control mb-2" id="{{ $attrName }}" data-attr="{{ $attrName }}" name="option">
+                                                        @foreach ($variants as $variant)
+                                                            <option value="{{ $variant['id'] }}" data-variant="{{ $variant['name'] }}">
+                                                                {{ $variant['name'] }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                @endforeach
                                             @endif
                                         </td>
+
+
                                         <td class="item-total">Rs. {{ $item['item_total'] }}</td>
 
                                         <td class="pr-title">
@@ -186,9 +186,11 @@
         });
 
         $(document).ready(function() {
+            let variantSelects = row.find("select[name='option']");
             $(document).on('click', '#cart-delete-button', function(e) {
                 e.preventDefault();
-
+                let attrName = $(this).data("attr");
+                console.log("Variant Selects:", attrName);
                 var ele = $(this);
                 var id = ele.data('id');
 
