@@ -1,0 +1,439 @@
+    .ck-editor__editable {
+        min-height: 250px !important;
+    }
+
+
+.top-link {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+    text-decoration: none;
+}
+/* Custom table full-width and styling */
+.table-card {
+  width: 100%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.custom-dashboard-table th,
+.custom-dashboard-table td {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.custom-dashboard-table .progress {
+  height: 10px;
+  background-color: #f0f0f0;
+}
+
+.custom-dashboard-table .progress-bar {
+  height: 100%;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-size: 0.85em;
+}
+
+
+
+/* Modern Corporate Donation Form Styles */
+
+/* Color palette */
+:root {
+    --primary: #9c27b0;
+    --primary-light: #d05ce3;
+    --primary-dark: #6a0080;
+    --accent: #ff5722;
+    --accent-light: #ff8a65;
+    --success: #4caf50;
+    --gray-dark: #333333;
+    --gray-medium: #696969;
+    --gray-light: #e0e0e0;
+    --white: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --gradient-start: #9c27b0;
+    --gradient-end: #ff5722;
+}
+
+
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    gap: 2rem;
+}
+
+/* Form container styles */
+.form-container {
+    flex: 3;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow-color);
+    overflow: hidden;
+    position: relative;
+}
+
+.form-header {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: var(--white);
+    padding: 2rem;
+    text-align: center;
+}
+
+.form-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+form {
+    padding: 2rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h2 {
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+/* Input styles */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray-medium);
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus,.input-group textarea:focus{
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.2);
+    outline: none;
+}
+.input-group textarea{
+    height: 200px;
+    resize: none;
+     border: 1px solid var(--gray-light);
+}
+.input-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.input-row .input-group {
+    flex: 1;
+}
+
+/* Donation amount options */
+.donation-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.amount-option {
+    flex: 1;
+    min-width: 100px;
+}
+
+.amount-option input[type="radio"] {
+    display: none;
+}
+
+.amount-option label {
+    display: block;
+    padding: 1rem;
+    text-align: center;
+    background-color: var(--gray-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.amount-option input[type="radio"]:checked + label {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+/* Checkbox styles */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--primary);
+}
+
+.checkbox-group label {
+    cursor: pointer;
+}
+
+/* Button styles */
+.btn-donate {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-donate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray-medium);
+    color: var(--white);
+}
+
+/* Processing indicator */
+.processing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid var(--primary);
+    width: 1.5rem;
+    height: 1.5rem;
+    animation: spin 1s linear infinite;
+    margin-right: 0.75rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Thank you message */
+.thank-you-message {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.checkmark-circle {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: 1.5rem;
+}
+
+.checkmark-circle .checkmark {
+    border-radius: 5px;
+    display: block;
+    stroke-width: 6;
+    stroke: var(--success);
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px var(--success);
+    animation: fill-success 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    position: relative;
+    top: 30px;
+    right: 5px;
+    width: 38px;
+    height: 22px;
+    border-bottom: 6px solid var(--success);
+    border-right: 6px solid var(--success);
+    transform: rotate(45deg);
+}
+
+@keyframes fill-success {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px var(--success);
+    }
+}
+
+@keyframes scale {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+/* Impact sidebar */
+.impact-sidebar {
+    flex: 2;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: var(--white);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-height: 600px;
+    position: sticky;
+    top: 2rem;
+}
+
+.impact-sidebar h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.impact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.impact-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    background-color: rgba(255, 255, 255, 0.15);
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.impact-text h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+}
+
+.impact-text p {
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.impact-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-light);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .impact-sidebar {
+        position: static;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .input-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .form-container {
+        border-radius: 8px;
+    }
+
+    .form-header {
+        padding: 1.5rem;
+    }
+
+    form {
+        padding: 1.5rem;
+    }
+
+    .donation-options {
+        flex-direction: column;
+    }
+}
