@@ -19,8 +19,7 @@
                             <h2>Company Information</h2>
                             <div class="input-group">
                                 <label for="companyName">Product Title</label>
-                                <input type="text" id="companyName" name="title" value="{{ $product->title }}"
-                                    required>
+                                <input type="text" id="companyName" name="title" value="{{ $product->title }}" required>
                                 @error('title')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -29,7 +28,8 @@
 
                             <div class="input-group d-flex flex-column">
                                 <label for="short_description">Short Description</label>
-                                <textarea name="short_description" id="short_description">{{ old('short_description', $product->short_description) }}</textarea>
+                                <textarea name="short_description"
+                                    id="short_description">{{ old('short_description', $product->short_description) }}</textarea>
 
                                 @error('short_description')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -38,7 +38,8 @@
 
                             <div class="input-group d-flex flex-column">
                                 <label for="long_description">Long Description</label>
-                                <textarea name="long_description" id="long_description">{{ old('long_description', $product->long_description) }}</textarea>
+                                <textarea name="long_description"
+                                    id="long_description">{{ old('long_description', $product->long_description) }}</textarea>
                                 @error('long_description')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -64,7 +65,8 @@
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}">
                                             {{ $product->category_id == $category->id }}
-                                            {{ $category->name }}</option>
+                                            {{ $category->name }}
+                                        </option>
                                     @endforeach
                                 </select>
 
@@ -79,8 +81,7 @@
                                             <select name="attribute_id[]" required>
                                                 <option value="">Select Attribute</option>
                                                 @foreach ($productAttributes as $attribute)
-                                                    <option value="{{ $attribute->id }}"
-                                                        {{ $variant->attribute_id == $attribute->id ? 'selected' : '' }}>
+                                                    <option value="{{ $attribute->id }}" {{ $variant->attribute_id == $attribute->id ? 'selected' : '' }}>
                                                         {{ $attribute->name }}
                                                     </option>
                                                 @endforeach
@@ -92,18 +93,24 @@
                                             <select name="variant_id[]" required>
                                                 <option value="">Select Variant</option>
                                                 @foreach ($variants as $var)
-                                                    <option value="{{ $var->id }}"
-                                                        {{ $variant->id == $var->id ? 'selected' : '' }}>
+                                                    <option value="{{ $var->id }}" {{ $variant->id == $var->id ? 'selected' : '' }}>
                                                         {{ $var->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
 
+                                        <div class="input-group">
+                                            <label>Variant Price</label>
+                                            <input type="number" name="variant_price[]" class="variant-price-input"
+                                                value="{{ $variant->pivot->price ?? '' }}">
+                                        </div>
+
                                         <button class="btn btn-sm btn-danger sub-btn mt-2" type="button">Remove</button>
                                     </div>
                                 @endforeach
                             </div>
+
                             <div>
                                 <button class="btn btn-sm btn-primary add-btn" type="button">Add More Attribute
                                     Variants</button>
@@ -112,8 +119,7 @@
 
                             <div class="input-group">
                                 <label for="coin_price">Product Price</label>
-                                <input type="number" id="coin_price" value="{{ $product->price }}" name="price"
-                                    required>
+                                <input type="number" id="coin_price" value="{{ $product->price }}" name="price" required>
                                 @error('price')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -192,9 +198,9 @@
 
 @push('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            $(".add-btn").on("click", function(e) {
+            $(".add-btn").on("click", function (e) {
                 e.preventDefault();
                 console.log('working');
                 let paretnContainer = $(".attr-variant-container");
@@ -204,7 +210,7 @@
                 paretnContainer.append(cloned);
             })
 
-            $(document).on("click", ".sub-btn", function(e) {
+            $(document).on("click", ".sub-btn", function (e) {
                 e.preventDefault();
 
                 $(this).closest(".to-clone").remove();
@@ -214,7 +220,7 @@
 
         })
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             ClassicEditor
                 .create(document.querySelector('#short_description'))
                 .catch(error => {

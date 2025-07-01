@@ -28,6 +28,22 @@ class CheckOutController extends Controller
 
                 $product = isset($productData[0]) ? $productData[0] : $productData;
                 // dd($product);
+
+                $variants = [];
+
+                if (isset($productData['group_variants']) && is_array($productData['group_variants'])) {
+                    foreach ($productData['group_variants'] as $attrName => $variantArray) {
+                        foreach ($variantArray as $variant) {
+                            $variants[$attrName] = $variant['name'];
+                        }
+                    }
+                }
+
+                // dd($variants);  
+
+
+
+
                 $cartitemstotal = $cart['total'];
                 $item_total = $product['item_total'];
 
@@ -37,6 +53,7 @@ class CheckOutController extends Controller
                     'featured_img' => $product['item']->featured_img,
                     'total' => $cartitemstotal,
                     'item_total' => $item_total,
+                    'variants' => $variants,
                 ];
 
             }
@@ -77,27 +94,50 @@ class CheckOutController extends Controller
 
         foreach ($cart['items'] as $id => $item) {
 
-            $product = isset($item[0]) ? $item[0] : $item;
-            $orderproduct = OrderProduct::create([
+            $product = $item['item']; 
 
-                'order_id' => $order->id,
-                'product_id' => $product['item']->id,
-                'product_name' => $product['item']->title,
-                'product_price' => $product['item']->price,
-                'product_quantity' => $item['item_quantity'],
-                'total' => $cart['total'],
+            if ($product->quantity >= $item['item_quantity']) {
 
-            ]);
-            if (is_array($item['variant'])) {
-                foreach ($item['variant'] as $productvariants) {
-                    OrderProductVariant::create([
-                        'order_product_id' => $orderproduct->id,
-                        'attribute_name' => strtolower($productvariants['attrName']),
-                        'name' => $productvariants['variantName'],
-                    ]);
+                $product->quantity -= $item['item_quantity'];
+                $product->save();
+            } else {
+
+                return back()->with('emptyquantity', 'stock khatam');
+            }
+
+            $variants = [];
+
+            if (isset($item['group_variants']) && is_array($item['group_variants'])) {
+                foreach ($item['group_variants'] as $attrName => $variantArray) {
+                    foreach ($variantArray as $variant) {
+                        $variants[] = ['id' => $variant['id']];
+                    }
                 }
             }
-            // dd($orderproduct);
+
+            foreach ($variants as $variant) {
+                $orderproduct = OrderProduct::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->title,
+                    'product_price' => $product->price,
+                    'product_quantity' => $item['item_quantity'],
+                    'total' => $cart['total'],
+                    'variant_id' => $variant['id'],
+                ]);
+            }
+
+            if (isset($item['group_variants']) && is_array($item['group_variants'])) {
+                foreach ($item['group_variants'] as $attrName => $variantArray) {
+                    foreach ($variantArray as $variant) {
+                        OrderProductVariant::create([
+                            'order_product_id' => $orderproduct->id,
+                            'attribute_name' => strtolower($attrName),
+                            'name' => $variant['name'],
+                        ]);
+                    }
+                }
+            }
         }
         session()->forget('cart');
 

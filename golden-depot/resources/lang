@@ -1,8 +1,0 @@
-<?php
-
-return [
-    'item_added' => 'Item Added to Cart',
-    'item_deleted' => 'Item Deleted from Cart',
-    'cart_updated' => 'Cart updated successfully',
-    'error' => 'An error occurred, please try again.',
-];

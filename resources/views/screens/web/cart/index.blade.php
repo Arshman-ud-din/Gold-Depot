@@ -44,34 +44,42 @@
                             {{-- @dd(session('cart')); --}}
 
                             {{-- @php
-                                $product_detail = session('cart');
+                            $product_detail = session('cart');
 
-                                dd($product_detail);
+                            dd($product_detail);
                             @endphp --}}
 
 
                             @if (isset($items))
-                                @foreach ($items as $item)
-                                    <tr class="tr-hover">
+                                @foreach ($items as $k => $item)
+                                    <tr class="tr-hover cart-item">
                                         <td class="pr-title d-flex mt-2">
-                                            <span><img class="img-fluid"
-                                                    src="{{ asset('images/featured/' . $item['featured_img']) }}"
-                                                    alt="" width="60"></span>
+                                            <span>
+                                                <img class="img-fluid" src="{{ asset('images/featured/' . $item['featured_img']) }}"
+                                                    alt="" width="60">
+                                            </span>
                                             <span class="ms-2"><strong>{{ $item['title'] }}</strong></span>
                                         </td>
-                                        <td class="pr-title"><span><strong>Rs. {{ $item['price'] }}</strong></span></td>
-                                        <td class="pr-title counter d-flex cart-item">
+
+                                        <td class="pr-title">
+                                            <strong>Rs. {{ $item['price'] }}</strong>
+                                        </td>
+
+                                        <td class="pr-title counter d-flex">
                                             <button class="count-btn decrement cart-update-button">-</button>
-                                            <input type="number" class="count" value="{{ $item['quantity'] }}"
-                                                data-id="{{ $item['id'] }}">
+                                            <input type="number" class="count"
+                                                value="{{ $item['item_quantity'] ?? $item['quantity'] }}" data-id="{{ $k }}">
                                             <button class="count-btn increment cart-update-button">+</button>
                                         </td>
-                                        <td class="item-total">
+
+                                        <td class="pr-title">
                                             @if (isset($item['group_variants']) && is_array($item['group_variants']))
                                                 @foreach ($item['group_variants'] as $attrName => $variants)
-                                                    <select class="form-control mb-2" id="{{ $attrName }}" data-attr="{{ $attrName }}" name="option">
+                                                    <select class="form-control mb-2 variant-dropdown" name="variants"
+                                                        data-previousitemid="{{ $k }}" data-attr="{{ $attrName }}">
                                                         @foreach ($variants as $variant)
-                                                            <option value="{{ $variant['id'] }}" data-variant="{{ $variant['name'] }}">
+                                                            <option value="{{ $variant['id'] }}" data-price="{{ $variant['price'] }}"
+                                                                data-variant="{{ $variant['name'] }}">
                                                                 {{ $variant['name'] }}
                                                             </option>
                                                         @endforeach
@@ -80,20 +88,17 @@
                                             @endif
                                         </td>
 
-
                                         <td class="item-total">Rs. {{ $item['item_total'] }}</td>
 
                                         <td class="pr-title">
-                                            <button class="delete-btn" data-id="{{ $item['id'] }}" id="cart-delete-button"
-                                                type="button">
+                                            <button class="delete-btn" data-id="{{ $k }}" id="cart-delete-button" type="button">
                                                 <i class="fa-solid fa-xmark"></i>
                                             </button>
-
                                         </td>
-
                                     </tr>
                                 @endforeach
                             @endif
+
 
                         </table>
                     </div>
@@ -167,15 +172,15 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function() {
-            $('.counter .increment').click(function() {
+        $(document).ready(function () {
+            $('.counter .increment').click(function () {
                 var countElement = $(this).siblings('.count');
                 var count = Number(countElement.val());
                 count++;
                 countElement.val(count);
             });
 
-            $('.counter .decrement').click(function() {
+            $('.counter .decrement').click(function () {
                 var countElement = $(this).siblings('.count');
                 var count = Number(countElement.val());
                 if (count > 0) {
@@ -185,14 +190,12 @@
             });
         });
 
-        $(document).ready(function() {
-            let variantSelects = row.find("select[name='option']");
-            $(document).on('click', '#cart-delete-button', function(e) {
+        $(document).ready(function () {
+            $(document).on('click', '#cart-delete-button', function (e) {
                 e.preventDefault();
-                let attrName = $(this).data("attr");
-                console.log("Variant Selects:", attrName);
-                var ele = $(this);
-                var id = ele.data('id');
+
+                let ele = $(this);
+                let id = ele.data('id');
 
                 $.ajax({
                     type: 'GET',
@@ -200,9 +203,8 @@
                     data: {
                         productId: id
                     },
-                    success: function(response) {
-                        console.log("Delete response:", response);
-                        if (response.success == true) {
+                    success: function (response) {
+                        if (response.success === true) {
                             Swal.fire({
                                 title: 'Deleted!',
                                 text: response.message,
@@ -211,18 +213,19 @@
                                 showConfirmButton: false
                             });
 
+                            // ✅ Remove row from UI
                             ele.closest("tr").remove();
 
-                            const updatedCart = response.cart;
-
-                            $('#cart-total').text('Rs. ' + updatedCart.total);
-
-                            $('#cart-count').text(updatedCart.count);
+                            // ✅ Update totals in header
+                            $('#cart-total').text('Rs. ' + response.cart.total);
+                            $('#cart-count').text(response.cart.count);
                         } else {
-                            alert(response.message);
+                            Swal.fire('Error', response.message, 'error');
                         }
                     },
-
+                    error: function () {
+                        Swal.fire('Error', 'Something went wrong while deleting item.', 'error');
+                    }
                 });
             });
         });
@@ -230,9 +233,41 @@
 
 
 
+        $(document).ready(function () {
+            let options = [];
 
-        $(document).ready(function() {
-            $(document).on('click', '.cart-update-button', function(e) {
+            // Handle variant dropdown change
+            $(document).on("change", ".variant-dropdown", function () {
+                let selectedOption = $(this).find(":selected");
+                let variantName = selectedOption.data("variant");
+                let attrName = $(this).data("attr");
+                let variantprice = selectedOption.data("price");
+                let previousitemid = $(this).data("previousitemid");
+                // console.log(variantprice);
+
+                const obj = {
+                    attrName: attrName,
+                    previousitemid: previousitemid,
+                    variantName: variantName,
+                    variantprice: variantprice,
+                    variantID: $(this).val()
+                };
+
+                const existingIndex = options.findIndex(item => item.attrName === obj.attrName);
+                if (existingIndex !== -1) {
+                    options[existingIndex] = obj;
+                } else {
+                    options.push(obj);
+                }
+
+                let $row = $(this).closest('.cart-item');
+                let quantity = parseInt($row.find('.count').val());
+
+                updateCart(previousitemid, quantity, options, $row);
+            });
+
+            // Handle quantity update
+            $(document).on('click', '.cart-update-button', function (e) {
                 e.preventDefault();
 
                 let $row = $(this).closest('.cart-item');
@@ -240,32 +275,35 @@
                 let quantity = parseInt($input.val());
                 let productId = $input.data('id');
 
+                updateCart(productId, quantity, options, $row);
+            });
 
-                $input.val(quantity);
-
+            // Reusable function to call cart.update
+            function updateCart(previousitemid, quantity, variantOptions, $row) {
                 $.ajax({
                     type: 'POST',
                     url: "{{ route('cart.update') }}",
                     data: {
                         _token: '{{ csrf_token() }}',
-                        id: productId,
-                        quantity: quantity
+                        previousitemid: previousitemid,
+                        quantity: quantity,
+                        variant: variantOptions
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success === true) {
                             const updatedCart = response.cart;
-                            const updatedItem = updatedCart.items[productId];
+                            const itemKey = Object.keys(updatedCart.items).find(key => key.includes(previousitemid));
+                            const updatedItem = updatedCart.items[itemKey];
 
                             $row.find('.item-total').text('Rs. ' + updatedItem.item_total);
-                            // $('.item-total').text('Rs. ' + updatedItem.item_total);
                             $('#cart-total').text('Rs. ' + updatedCart.total);
                             $('#cart-count').text(updatedCart.count);
-
                         }
-                    },
-
+                    }
                 });
-            });
+            }
         });
+
+
     </script>
 @endpush

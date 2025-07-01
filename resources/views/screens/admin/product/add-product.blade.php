@@ -24,7 +24,8 @@
 
                             <div class="input-group d-flex flex-column">
                                 <label for="short_description">Short Description</label>
-                                <textarea name="short_description" id="short_description">{{ old('short_description') }}</textarea>
+                                <textarea name="short_description"
+                                    id="short_description">{{ old('short_description') }}</textarea>
                                 @error('short_description')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -32,7 +33,8 @@
 
                             <div class="input-group d-flex flex-column">
                                 <label for="long_description">Long Description</label>
-                                <textarea name="long_description" id="long_description">{{ old('long_description') }}</textarea>
+                                <textarea name="long_description"
+                                    id="long_description">{{ old('long_description') }}</textarea>
                                 @error('long_description')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -80,13 +82,16 @@
                                             <option value="">Select Variant</option>
                                             @foreach ($attrs as $attr)
                                                 @foreach ($attr->variants as $variant)
-                                                    <option value="{{ $variant->id }}"
-                                                        >
+                                                    <option value="{{ $variant->id }}">
                                                         {{ $variant->name }}
                                                     </option>
                                                 @endforeach
                                             @endforeach
                                         </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Variant Price</label>
+                                        <input type="number" name="variant_price[]" class="variant-price-input">
                                     </div>
 
                                     <button class="btn btn-sm btn-danger sub-btn mt-2" type="button">Remove</button>
@@ -113,8 +118,8 @@
                             </div>
 
                             <div class="input-group d-flex justify-content-start" style="margin-top: 20px;">
-                                <button type="submit" class="btn btn-outline-warning btn-lg"
-                                    style="margin-right: 10px;">Add Product</button>
+                                <button type="submit" class="btn btn-outline-warning btn-lg" style="margin-right: 10px;">Add
+                                    Product</button>
                             </div>
                         </div>
                     </form>
@@ -174,9 +179,9 @@
 @endsection
 @push('script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
 
-            $(".add-btn").on("click", function(e) {
+            $(".add-btn").on("click", function (e) {
                 e.preventDefault();
                 console.log('working');
                 let paretnContainer = $(".attr-variant-container");
@@ -186,7 +191,7 @@
                 paretnContainer.append(cloned);
             })
 
-            $(document).on("click", ".sub-btn", function(e) {
+            $(document).on("click", ".sub-btn", function (e) {
                 e.preventDefault();
 
                 $(this).closest(".to-clone").remove();
@@ -197,8 +202,8 @@
 
 
         })
-        
-        document.addEventListener("DOMContentLoaded", function() {
+
+        document.addEventListener("DOMContentLoaded", function () {
             ClassicEditor
                 .create(document.querySelector('#short_description'))
                 .catch(error => {

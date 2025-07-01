@@ -32,8 +32,15 @@ class ProductController extends Controller
         $groupedVariants = [];
         foreach ($product->variants as $variant) {
             $attrName = $variant->attribute->name;
-            $groupedVariants[$attrName][] = $variant;
+            $variantprice = $variant->pivot->price;
+            $groupedVariants[$attrName][] = [
+                'id' => $variant->id,
+                'name' => $variant->name,
+                'price' => $variant->pivot->price
+            ];
+            // $groupedVariants[$variantprice][] = $variant;
         }
+
         // dd($groupedVariants);
 
         if ($user) {

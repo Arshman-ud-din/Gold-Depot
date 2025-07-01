@@ -32,6 +32,7 @@ class AdminProductController extends Controller
     }
     public function store(Request $request)
     {
+        // dd($request->all());
 
         if ($request->has('featured_img')) {
             $featured_img = time() . '_' . $request->featured_img->getClientOriginalName();
@@ -54,16 +55,19 @@ class AdminProductController extends Controller
         ]);
         // dd($request->all());
 
-        if ($request->has('attribute_id') && $request->has('variant_id')) {
+        if ($request->has('attribute_id') && $request->has('variant_id') && $request->has('variant_price')) {
 
             $attribute_ids = $request->attribute_id;
             $variant_ids = $request->variant_id;
+            $variant_price = $request->variant_price;
 
-            // dd($attribute_ids, $variant_ids);
-
+            // dd($attribute_ids, $variant_ids,$variant_price);
             $product->productAttributes()->attach($attribute_ids);
-            $product->variants()->attach($variant_ids);
 
+            foreach ($variant_ids as $index => $variant) {
+                $price = $variant_price[$index];
+                $product->variants()->attach($variant, ['price' => $price]);
+            }
         }
 
         // dd($request->all());
@@ -129,12 +133,17 @@ class AdminProductController extends Controller
 
             $attribute_ids = $request->attribute_id;
             $variant_ids = $request->variant_id;
+            $variant_price = $request->variant_price;
 
-            // dd($attribute_ids, $variant_ids);
+            // dd($attribute_ids, $variant_ids,$variant_price);
 
             $product->productAttributes()->sync($attribute_ids);
-            $product->variants()->sync($variant_ids);
+            $data = [];
+            foreach ($variant_ids as $index => $variant) {
+                $data[$variant] = ['price' => $variant_price[$index]];
+            }
 
+            $product->variants()->sync($data);
         }
 
         if ($imagesfiles = $request->file(key: 'images')) {
@@ -158,7 +167,7 @@ class AdminProductController extends Controller
             }
         }
 
-        return redirect()->route('adminproduct.index');
+        return redirect()->route('adminproduct.index')->with('updateproduct', 'Product Has Been Updated');
     }
 
 
@@ -166,7 +175,7 @@ class AdminProductController extends Controller
     {
 
         Product::find($id)->delete();
-        return redirect()->route('adminproduct.index');
+        return redirect()->route('adminproduct.index')->with('deleteproduct', 'Product Has Been Deleted');
     }
     public function productdetail($id)
     {

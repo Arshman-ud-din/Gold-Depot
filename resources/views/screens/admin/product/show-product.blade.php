@@ -70,13 +70,13 @@
                                     notyf.success("{{ session('productsuccess') }}");
                                 @endif
 
-                                // @if (session()->has('updatestatus'))
-                                //     notyf.success("{{ session('blogupdate') }}");
-                                // @endif
+                                @if (session()->has('deleteproduct'))
+                                    notyf.success("{{ session('deleteproduct') }}");
+                                @endif
 
-                                // @if (session()->has('blodelete'))
-                                //     notyf.success("{{ session('blodelete') }}");
-                                // @endif
+                                @if (session()->has('updateproduct'))
+                                    notyf.success("{{ session('updateproduct') }}");
+                                @endif
 
                                 // @if (session()->has('error'))
                                 //     notyf.error("{{ session('error') }}");

@@ -19,16 +19,17 @@
                 <div class="col-lg-6 col-md-5 col-12">
                     <div class="">
                         <h4 class="inner-financial-hd">{{ $product->title }}</h4>
-                        <p class="shipping-para pr"><strong>{{ $product->price }}</strong></p>
+                        <p class="shipping-para pr"><strong id="base-price">{{ $product->price }}</strong></p>
                         @foreach ($groupedVariants as $attrName => $variants)
                             <label>{{ $attrName }}</label>
                             <br>
-                            <select class="form-control" id="{{ $attrName }}" data-attr="{{ $attrName }}"
-                                name="option">
+                            <select class="form-control" id="{{ $attrName }}" data-attr="{{ $attrName }}" name="option">
                                 <option disabled selected> select any option </option>
                                 @foreach ($variants as $variant)
-                                    <option value="{{ $variant->id }}" data-variant="{{ $variant->name }}">
-                                        {{ $variant->name }}</option>
+                                    <option value="{{ $variant['id'] }}" data-variant="{{ $variant['name'] }}"
+                                        data-price="{{ $variant['price'] }}">
+                                        {{ $variant['name'] }}
+                                    </option>
                                 @endforeach
                             </select>
                         @endforeach
@@ -101,15 +102,15 @@
                                                 </p>
                                                 <div class="row">
                                                     <div class="col-12">
-                                                        <textarea name="review" id="" class="form-input" placeholder="Your Review"></textarea>
+                                                        <textarea name="review" id="" class="form-input"
+                                                            placeholder="Your Review"></textarea>
                                                     </div>
                                                     <div class="col-lg-6 col-md-6 col-12">
                                                         <input type="text" class="form-input" name="fullname"
                                                             placeholder="Full Name">
                                                     </div>
                                                     <div class="col-lg-6 col-md-6 col-12">
-                                                        <input type="email" class="form-input" name="email"
-                                                            placeholder="Email">
+                                                        <input type="email" class="form-input" name="email" placeholder="Email">
                                                     </div>
 
                                                     <div class="col-12">
@@ -153,8 +154,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="pro-area">
                         <div class="text-center mb-3">
-                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver2.png') }}"
-                                alt="">
+                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver2.png') }}" alt="">
                         </div>
                         <h4 class="inner-financial-hd">1 oz Silver Bar </h4>
                         <div class="raiting-area">
@@ -175,8 +175,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="pro-area">
                         <div class="text-center mb-3">
-                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver3.png') }}"
-                                alt="">
+                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver3.png') }}" alt="">
                         </div>
                         <h4 class="inner-financial-hd">Asahi 1 oz Silver Round Freedom Liberty </h4>
                         <div class="raiting-area">
@@ -197,8 +196,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="pro-area">
                         <div class="text-center mb-3">
-                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver4.png') }}"
-                                alt="">
+                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver4.png') }}" alt="">
                         </div>
                         <h4 class="inner-financial-hd">1 oz Silver Round</h4>
                         <div class="raiting-area">
@@ -219,8 +217,7 @@
                 <div class="col-lg-3 col-md-6 col-12">
                     <div class="pro-area">
                         <div class="text-center mb-3">
-                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver5.png') }}"
-                                alt="">
+                            <img class="img-fluid bit-img" src="{{ asset('assets/web/images/silver5.png') }}" alt="">
                         </div>
                         <h4 class="inner-financial-hd">2 oz Round Mercury and Buffalo</h4>
                         <div class="raiting-area">
@@ -277,18 +274,40 @@
     </section>
 @endsection
 @push('scripts')
+
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
+            let productprice = parseFloat($('#base-price').text());
+
+            $('select.form-control').on('change', function () {
+                let totalPrice = productprice;
+
+                $('select.form-control').each(function () {
+                    let selected = $(this).find('option:selected');
+                    let variantPrice = parseFloat(selected.data('price')) || 0;
+                    totalPrice += variantPrice;
+                });
+                $('#base-price').text(totalPrice);
+            });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
             var options = [];
-            $("select[name='option']").on("change", function() {
+            $("select[name='option']").on("change", function () {
                 let selectedOption = $(this).find(":selected");
                 let variantName = selectedOption.data("variant");
                 let attrName = $(this).data("attr");
-                // console.log(variantName);
+                let selected = $(this).find('option:selected');
+                let variantPrice = parseFloat(selected.data('price')) || 0;
+                // console.log(variantPrice);
 
                 const obj = {
                     attrName: attrName,
                     variantName: variantName,
+                    variantprice: variantPrice,
                     variantID: $(this).val()
                 }
                 const existingIndex = options.findIndex(item => item.attrName === obj.attrName);
@@ -302,7 +321,7 @@
                 console.log(options);
 
             })
-            $(document).on('click', '#add-to-cart', function(e) {
+            $(document).on('click', '#add-to-cart', function (e) {
                 let quantity = $('#quantity').val();
                 // let variant = $('#variant').val();
                 let product_id = $(this).data('id');
@@ -311,7 +330,7 @@
 
                 e.preventDefault();
 
-                console.log(select_option);
+                // console.log(select_option);
                 $.ajax({
                     type: 'GET',
                     url: "{{ route('cart.add') }}",
@@ -321,7 +340,7 @@
                         productId: product_id
 
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 title: 'Success',

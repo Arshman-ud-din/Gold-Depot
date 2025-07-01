@@ -25,6 +25,7 @@ use App\Http\Controllers\web\LoginController;
 use App\Http\Controllers\web\PlatinumController;
 use App\Http\Controllers\web\PlatinumDetailController;
 use App\Http\Controllers\web\ProductController;
+use App\Http\Controllers\web\SearchController;
 use App\Http\Controllers\web\ShopController;
 use App\Http\Controllers\web\SignUpController;
 use App\Http\Controllers\web\SilverController;
@@ -126,10 +127,20 @@ Route::prefix('')->name('shop.')->controller(ShopController::class)->group(funct
 
 
     Route::get('/shop-all', 'index')->name('index');
+    Route::post('/shop-all', 'filter')->name('filter');
     Route::get('/shop-all/product/{product_id}', 'show')->name('show');
 
 
 });
+Route::prefix('')->name('search.')->controller(SearchController::class)->group(function () {
+
+
+
+    Route::get('/search', 'search')->name('search');
+
+
+});
+
 
 
 

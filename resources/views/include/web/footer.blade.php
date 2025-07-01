@@ -3,8 +3,7 @@
         <div class="row">
             <div class="col-lg-3 col-md-6 col-12">
                 <div class="mt-3">
-                    <img class="img-fluid footer-logo" src="{{ asset('assets/web/images/footerlogo.png') }}"
-                        alt="">
+                    <img class="img-fluid footer-logo" src="{{ asset('assets/web/images/footerlogo.png') }}" alt="">
                     <p class="para white mt-3">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
                         do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                     <div class="d-flex gap-3 mt-4">
@@ -98,14 +97,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-6 col-12">
                 <form action="">
-                    <div class="search-input-area">
-                        <input type="text" placeholder="Search" class="form-input">
-                        <button class="primary-btn mt-0">Search</button>
+                    <div class="search-input-area" id="search-results">
+                        <input type="text" placeholder="Search" id="search-input" name="search" class="form-input">
                     </div>
+
+                    <div class="show-prods">
                 </form>
+
             </div>
+
         </div>
     </div>
+</div>
 
 </div>
 
@@ -118,10 +121,10 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
     fetch("{{ route('web.index') }}", {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
         .then(response => response.json())
         .then(response => {
             // if (data.success) {
@@ -131,6 +134,79 @@
             // }
         });
 </script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#search-input').on('keyup', function () {
+            let query = $(this).val();
+
+            $('.show-prods').html('');
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('search.search') }}",
+                data: {
+                    search: query
+                },
+                success: function (response) {
+                    console.log(response.products);
+
+                    if (response.success == true) {
+                        let searchproduct = response.products;
+                        let prods = '';
+
+                        searchproduct.forEach(element => {
+                            let imagePath = "{{ asset('images/featured') }}/" + element.featured_img;
+
+                            prods += `
+                            <a >
+                                <div class="pr-search-area mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div>
+                                            <img class="img-fluid" src="${imagePath}" alt="${element.title}" width="60">
+                                        </div>
+                                        <div>
+                                            <h3 class="srch-pr-title m-0">${element.category.name}</h3>
+                                            <h4 class="srch-pr-title m-0">${element.title}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                        });
+
+                        $('.show-prods').html(prods);
+                    } else {
+                        $('.show-prods').html(`
+                        <div class="pr-search-area">
+                            <div class="d-flex align-items-center gap-2">
+                                <div>
+                                    <h3 class="srch-pr-title">No results found</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    }
+                }
+            });
+        });
+    });
+
+    $(document).on("input", ".show-prods", function () {
+        searchProd.addEventListener("input", (e) => {
+            console.log(e.target.value)
+            if (searchProd.value != "") {
+                searchproductlist.classList.add("active")
+            } else {
+                searchproductlist.classList.remove("active")
+            }
+        })
+        $('.list-bysearch').empty();
+    });
+
+</script>
+
 @stack('scripts')
 </body>
 

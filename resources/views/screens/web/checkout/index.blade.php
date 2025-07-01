@@ -128,6 +128,12 @@
                                                     <p class="subttl-para" name="item_total">{{ $product['item_total'] }}
                                                     </p>
                                                 </div>
+                                                @foreach($product['variants'] as $variant)
+                                                    <div class="col-lg-6 col-md-5 col-6 m-0">
+                                                        <p class="subttl-para" name="variants[]">{{ $variant }}
+                                                        </p>
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         @endforeach
                                     @endif
@@ -200,50 +206,67 @@
         </div>
     </section>
 @endsection
+@push('scripts')
+    @if (session()->has('emptyquantity'))
+        <script>
+            Swal.fire({
+                title: 'Success',
+                text: "{{ session('emptyquantity') }}",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500
 
-<script>
-    var notBtn = document.querySelector(".note-btn");
-    var icon = notBtn.querySelector("i");
-    var noteArea = document.querySelector(".note-area");
-    var cpBtn = document.querySelector(".coupan-btn");
-    var icon2 = cpBtn.querySelector("i");
-    var cpArea = document.querySelector(".coupan-area");
+            });
+        </script>
+    @endif
 
 
-    notBtn.addEventListener("click", function() {
-        noteArea.classList.toggle("active")
-        if (icon.classList.contains("fa-plus")) {
-            icon.classList.remove("fa-plus");
-            icon.classList.add("fa-minus");
-        } else {
-            icon.classList.remove("fa-minus");
-            icon.classList.add("fa-plus");
+
+
+    <script>
+        var notBtn = document.querySelector(".note-btn");
+        var icon = notBtn.querySelector("i");
+        var noteArea = document.querySelector(".note-area");
+        var cpBtn = document.querySelector(".coupan-btn");
+        var icon2 = cpBtn.querySelector("i");
+        var cpArea = document.querySelector(".coupan-area");
+
+
+        notBtn.addEventListener("click", function () {
+            noteArea.classList.toggle("active")
+            if (icon.classList.contains("fa-plus")) {
+                icon.classList.remove("fa-plus");
+                icon.classList.add("fa-minus");
+            } else {
+                icon.classList.remove("fa-minus");
+                icon.classList.add("fa-plus");
+            }
+        })
+
+
+
+
+        cpBtn.addEventListener("click", function () {
+            cpArea.classList.toggle("active")
+            if (icon2.classList.contains("fa-plus")) {
+                icon2.classList.remove("fa-plus");
+                icon2.classList.add("fa-minus");
+            } else {
+                icon2.classList.remove("fa-minus");
+                icon2.classList.add("fa-plus");
+            }
+        })
+
+
+        function toggleCardInput() {
+            var checkbox = document.getElementById("flexRadioDefault1");
+            var cardInputArea = document.querySelector(".card-main-area");
+
+            if (checkbox.checked) {
+                cardInputArea.style.display = "none";
+            } else {
+                cardInputArea.style.display = "block";
+            }
         }
-    })
-
-
-
-
-    cpBtn.addEventListener("click", function() {
-        cpArea.classList.toggle("active")
-        if (icon2.classList.contains("fa-plus")) {
-            icon2.classList.remove("fa-plus");
-            icon2.classList.add("fa-minus");
-        } else {
-            icon2.classList.remove("fa-minus");
-            icon2.classList.add("fa-plus");
-        }
-    })
-
-
-    function toggleCardInput() {
-        var checkbox = document.getElementById("flexRadioDefault1");
-        var cardInputArea = document.querySelector(".card-main-area");
-
-        if (checkbox.checked) {
-            cardInputArea.style.display = "none";
-        } else {
-            cardInputArea.style.display = "block";
-        }
-    }
-</script>
+    </script>
+@endpush

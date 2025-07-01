@@ -12,7 +12,7 @@ class CartController extends Controller
 {
     public function index()
     {
-
+        // session()->flush();
         $cart = session('cart');
         $item = [];
         // $variants = Variant::all();
@@ -27,21 +27,24 @@ class CartController extends Controller
                 $cartitemstotal = $cart['total'];
                 $productcount = $cart['count'];
                 $item_total = $product['item_total'];
-                $variant = $product['variant'];
-                // dd($variant);
+                // $variantss = $product['variant'];
+                // dd($product['item']);
 
                 $productattr = Product::with(['variants.attribute'])->find($product['item']->id);
 
-                // dd($productattr);
+                // dd($productattr); 
 
                 $groupVariants = [];
+
                 foreach ($productattr->variants as $variant) {
                     $groupVariants[$variant->attribute->name][] = [
                         'id' => $variant->id,
                         'name' => $variant->name,
+                        'price' => $variant->pivot->price ?? 0 
                     ];
                 }
-                $items[] = [
+
+                $items[$id] = [
                     'id' => $product['item']->id,
                     'title' => $product['item']->title,
                     'featured_img' => $product['item']->featured_img,
@@ -50,7 +53,7 @@ class CartController extends Controller
                     'total' => $cartitemstotal,
                     'item_total' => $item_total,
                     'productcount' => $productcount,
-                    'variant' => $variant,
+                    // 'variantss' => $variantss,
                     'group_variants' => $groupVariants,
                 ];
 
@@ -64,6 +67,7 @@ class CartController extends Controller
 
     public function addToCart(Request $request)
     {
+        // dd($request->all());
         try {
             $productId = $request->productId;
 
@@ -76,8 +80,16 @@ class CartController extends Controller
             } else {
                 $itemKey = $productId;
             }
+            // dd($itemKey);
+            $variantsprice = [];
+            foreach ($request->variant as $variants) {
+
+                $variantprice[] = $variants['variantprice'];
+            }
+            // dd($variantprice);
+            $varianttotal = array_sum($variantprice);
             $product = Product::find($productId);
-            $totalPrice = $product->price * $quantity;
+            $totalPrice = $product->price * $quantity + $varianttotal;
             $cart = session()->get('cart', []);
 
             if (!isset($cart['items'][$itemKey])) {
@@ -104,7 +116,7 @@ class CartController extends Controller
 
             $cart['total'] = $totalCartPrice;
             $cart['count'] = $totalproducts;
-
+            // dd($cart);
 
             session()->put('cart', $cart);
 
@@ -123,91 +135,131 @@ class CartController extends Controller
 
     public function delete(Request $request)
     {
-
-        dd($request->all());
         try {
-            if ($request->productId) {
-                $cart = session()->get('cart');
+            $productId = $request->productId;
+            $cart = session('cart');
 
-                if (isset($cart['items'][$request->productId])) {
+            if ($productId && isset($cart['items'][$productId])) {
+                unset($cart['items'][$productId]);
 
-                    unset($cart['items'][$request->productId]);
-                    $totalproducts = count($cart['items']);
-                    $productcount = 0;
+                $cart['total'] = collect($cart['items'])->sum('item_total');
+                $cart['count'] = count($cart['items']);
 
-                    $totalCartPrice = 0;
-                    foreach ($cart['items'] as $item) {
-                        $totalCartPrice += $item['item_total'];
-                    }
-                    $cart['total'] = $totalCartPrice;
-                    $cart['count'] = $totalproducts;
-
-                    if (empty($cart['items'])) {
-                        session()->forget('cart');
-                    } else {
-                        session()->put('cart', $cart);
-                    }
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => "Item Deleted from Cart",
-                        'cart' => $cart,
-
-                    ]);
+                if (empty($cart['items'])) {
+                    session()->forget('cart');
+                } else {
+                    session()->put('cart', $cart);
                 }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Item deleted from cart',
+                    'cart' => $cart,
+                ]);
             }
-        } catch (Exception $e) {
+
             return response()->json([
                 'success' => false,
-                'message' => "Item Deleted to Cart",
+                'message' => 'Item not found in cart',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong while deleting item',
             ]);
         }
-
-
     }
+
+
 
 
     public function update(Request $request)
     {
+        // dd($request->all());
         try {
-            $cart = session()->get('cart');
-            $productId = $request->id;
-            $quantity = $request->quantity;
+            $cart = session()->get('cart', ['items' => [], 'total' => 0, 'count' => 0]);
+            $newitemid = $request->previousitemid;
+            $quantity = (int) $request->quantity;
 
-            if (isset($cart['items'][$productId])) {
-                $item = $cart['items'][$productId]['item'];
-                $price = $item->price;
-                $itemTotal = $price * $quantity;
-
-                $cart['items'][$productId]['item_quantity'] = $quantity;
-                $cart['items'][$productId]['item_total'] = $itemTotal;
-
-                $totalCartPrice = 0;
-                foreach ($cart['items'] as $item) {
-                    $totalCartPrice += $item['item_total'];
-                }
-
-                $cart['total'] = $totalCartPrice;
-                $cart['count'] = count($cart['items']);
-
-                session()->put('cart', $cart);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Cart updated successfully',
-                    'cart' => $cart,
-                ]);
+            // 🔑 Build itemKey from variants
+            if ($request->has('variant')) {
+                $variantKeys = implode('-', array_map(function ($entry) {
+                    return $entry['variantID'];
+                }, $request->variant));
+                $itemKey = $newitemid . '-' . $variantKeys;
+            } else {
+                $itemKey = $newitemid;
             }
-        } catch (Exception $e) {
+
+            // ❌ Remove all existing variants of the same product (except the current one)
+            foreach ($cart['items'] as $key => $item) {
+                if (str_starts_with($key, $newitemid) && $key !== $itemKey) {
+                    unset($cart['items'][$key]);
+                }
+            }
+
+            // ✅ Get product
+            $product = Product::findOrFail($newitemid);
+            $price = (float) $product->price;
+
+            // ✅ Variant prices (like size XL +500, color red +100)
+            $variantTotal = 0;
+            if ($request->has('variant')) {
+                $variantTotal = array_sum(array_column($request->variant, 'variantprice'));
+            }
+            // dd($variantTotal);
+            // ✅ Final item total
+            $itemTotal = ($price * $quantity) + $variantTotal;
+
+
+            // ✅ Add updated item to cart
+            $cart['items'][$itemKey] = [
+                'item' => $product,
+                'item_quantity' => $quantity,
+                'item_total' => $itemTotal,
+                'group_variants' => $this->getProductVariants($request->variant ?? []),
+                'variant' => $request->variant // store variant for future use (if needed)
+            ];
+
+            // ✅ Recalculate total
+            $cart['total'] = collect($cart['items'])->sum('item_total');
+            $cart['count'] = count($cart['items']);
+
+            session()->put('cart', $cart);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated successfully',
+                'cart' => $cart,
+            ]);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => "Item Upated to Cart",
-            ]);
+                'message' => $e->getMessage(),
+            ], 400);
         }
-
-
-
     }
+
+    private function getProductVariants($selected)
+    {
+        $grouped = [];
+        foreach ($selected as $entry) {
+            $grouped[$entry['attrName']][] = [
+                'id' => $entry['variantID'],
+                'name' => $entry['variantName'],
+                'selected' => true // ✅ Mark selected for dropdown
+            ];
+        }
+        return $grouped;
+    }
+
+
+
+
+
+
 
 
 
